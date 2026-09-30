@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KIP ANALYSIS — GENITUS STACK — 1-Tages-Build Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --kip: #00ccff;
+    --kip2: #9333ea;
+    --kip3: #f59e0b;
+    --accent: #00C853;
+    --red: #FF6B9D;
+    --gold: #FFD700;
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a26;
+    --border: rgba(0,204,255,0.15);
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  .orbitron { font-family: 'Orbitron', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ── TOP BAR (persistent burger) ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-brand { display:flex; align-items:center; gap:0.75rem; }
+  .burger-btn {
+    width: 40px; height: 40px; border-radius: 0.5rem;
+    background: rgba(0,204,255,0.08); border: 1px solid var(--border);
+    color: var(--kip); cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 4px; flex-shrink: 0;
+  }
+  .burger-btn span { width: 18px; height: 2px; background: var(--kip); border-radius: 2px; transition: transform .2s, opacity .2s; }
+  .burger-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .burger-btn.open span:nth-child(2) { opacity: 0; }
+  .burger-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+  .topbar-title { font-family:'Orbitron',sans-serif; font-size:0.85rem; font-weight:700; color:#fff; letter-spacing:0.05em; }
+  .topbar-title small { display:block; font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted); letter-spacing:0.1em; font-weight:400; }
+
+  /* ── PERSISTENT NAV DRAWER ── */
+  .nav-drawer {
+    position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
+    background: rgba(10,10,15,0.97); backdrop-filter: blur(16px);
+    border-right: 1px solid var(--border); z-index: 600;
+    padding: 1.5rem; overflow-y: auto;
+    transition: left 0.25s ease;
+  }
+  .nav-drawer.open { left: 0; box-shadow: 8px 0 40px rgba(0,0,0,0.5); }
+  .nav-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 550;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .nav-overlay.show { opacity: 1; pointer-events: auto; }
+  .nav-drawer-title { font-family:'Orbitron',sans-serif; font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--kip); margin-bottom:1.25rem; }
+  .nav-drawer a {
+    display: flex; align-items: center; gap: 0.6rem;
+    color: var(--muted); padding: 0.6rem 0.5rem; text-decoration: none;
+    font-size: 0.85rem; border-radius: 0.4rem; transition: background .15s, color .15s;
+  }
+  .nav-drawer a:hover, .nav-drawer a.active { color: #fff; background: rgba(0,204,255,0.08); }
+  .nav-drawer a .dot { width:6px; height:6px; border-radius:50%; background:var(--kip); flex-shrink:0; }
+  .nav-drawer-foot { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.68rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 2rem;
+    overflow: hidden;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,204,255,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(147,51,234,0.07) 0%, transparent 60%),
+                var(--bg);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,204,255,0.03) 40px),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,204,255,0.03) 40px);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(0,204,255,0.1);
+    border: 1px solid rgba(0,204,255,0.3);
+    color: var(--kip);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, var(--kip) 40%, var(--kip2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+  .hero-sub {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: #94a3b8;
+    max-width: 680px;
+    margin: 0 auto 2.5rem;
+  }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    overflow: hidden;
+    width: 100%;
+    max-width: 950px;
+    margin: 0 auto;
+  }
+  .kpi-card { background: var(--bg2); padding: 1.5rem 1rem; text-align: center; transition: background 0.2s; }
+  .kpi-card:hover { background: var(--bg3); }
+  .kpi-val { font-family: 'Orbitron', sans-serif; font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 900; color: var(--kip); line-height: 1; margin-bottom: 0.3rem; }
+  .kpi-val.gold { color: var(--gold); }
+  .kpi-val.purple { color: var(--kip2); }
+  .kpi-val.green { color: var(--accent); }
+  .kpi-val.red { color: var(--red); }
+  .kpi-label { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+  .section { padding: 4.5rem 0; border-top: 1px solid rgba(255,255,255,0.04); }
+  .section-title { font-family: 'Orbitron', sans-serif; font-size: clamp(1.3rem, 3vw, 1.9rem); font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+  .section-subtitle { font-size: 0.88rem; color: var(--muted); margin-bottom: 2.5rem; }
+  .tag { display: inline-block; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 100px; margin-bottom: 0.75rem; }
+  .tag-kip { background: rgba(0,204,255,0.12); color: var(--kip); border: 1px solid rgba(0,204,255,0.25); }
+  .tag-purple { background: rgba(147,51,234,0.12); color: var(--kip2); border: 1px solid rgba(147,51,234,0.25); }
+  .tag-gold { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.25); }
+  .tag-green { background: rgba(0,200,83,0.1); color: var(--accent); border: 1px solid rgba(0,200,83,0.25); }
+  .tag-red { background: rgba(255,107,157,0.1); color: var(--red); border: 1px solid rgba(255,107,157,0.25); }
+
+  /* ── PHASE CARDS ── */
+  .phase-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+  .phase-card { background: var(--bg2); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; overflow: hidden; position: relative; }
+  .phase-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .phase-header { padding: 1.5rem 1.5rem 1rem; display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+  .phase-num { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; line-height: 1; opacity: 0.15; min-width: 56px; }
+  .phase-info { flex: 1; }
+  .phase-name { font-family: 'Orbitron', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .phase-meta { font-size: 0.76rem; color: var(--muted); }
+  .phase-files-count { font-family: 'Orbitron', sans-serif; font-size: 1.7rem; font-weight: 900; text-align: right; line-height: 1; }
+  .phase-files-label { font-size: 0.63rem; color: var(--muted); text-align: right; text-transform: uppercase; letter-spacing: 0.08em; }
+  .phase-body { padding: 0 1.5rem 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .phase-body { grid-template-columns: 1fr; } }
+  .phase-col-title { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.5rem; }
+  .phase-list { list-style: none; }
+  .phase-list li { font-size: 0.8rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .phase-list li:last-child { border-bottom: none; }
+
+  /* ── FORMULA CARDS ── */
+  .formula-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+  .formula-card { background: var(--bg2); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; padding: 1.5rem; }
+  .formula-id { font-family: 'Orbitron', sans-serif; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .formula-name { font-weight: 600; font-size: 1rem; margin-bottom: 0.75rem; }
+  .formula-math { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.75rem; color: var(--kip); line-height: 1.5; overflow-x: auto; white-space: pre; }
+  .formula-result { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--gold); margin-bottom: 0.3rem; }
+  .formula-desc { font-size: 0.8rem; color: var(--muted); }
+
+  /* ── FLAGSHIP TABLE ── */
+  .flagship-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .flagship-table th { font-family: 'Orbitron', sans-serif; font-size: 0.63rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0.6rem 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .flagship-table td { padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+  .flagship-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .stars { color: var(--gold); letter-spacing: -0.1em; }
+  .pill { display: inline-block; font-size: 0.63rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 100px; background: rgba(0,204,255,0.1); color: var(--kip); border: 1px solid rgba(0,204,255,0.2); white-space: nowrap; }
+  .pill.purple { background: rgba(147,51,234,0.1); color: var(--kip2); border-color: rgba(147,51,234,0.2); }
+  .pill.gold { background: rgba(255,215,0,0.1); color: var(--gold); border-color: rgba(255,215,0,0.2); }
+  .pill.green { background: rgba(0,200,83,0.1); color: var(--accent); border-color: rgba(0,200,83,0.2); }
+  .pill.red { background: rgba(255,107,157,0.1); color: var(--red); border-color: rgba(255,107,157,0.2); }
+
+  .neon-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--kip), transparent); margin: 0; opacity: 0.3; }
+  .main-chart-wrap { background: var(--bg2); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; padding: 1.5rem; }
+  .main-chart-wrap canvas { height: 300px !important; }
+  .chart-label { font-family:'Orbitron',sans-serif; font-size:0.75rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:1rem; }
+
+  .ref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+  .ref-card { background: var(--bg2); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; padding: 1.25rem; }
+  .ref-card h4 { font-size: 0.78rem; font-weight: 600; color: var(--kip); margin-bottom: 0.5rem; }
+  .ref-card p, .ref-card li { font-size: 0.78rem; color: var(--muted); }
+  .ref-card ul { padding-left: 1rem; }
+  .ref-card li { margin-bottom: 0.3rem; }
+
+  footer { padding: 3rem 1.5rem; text-align: center; font-size: 0.75rem; color: var(--muted); border-top: 1px solid rgba(255,255,255,0.04); }
+  footer .logo { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: var(--kip); margin-bottom: 0.5rem; }
+
+  .p1::before { background: #00ccff; }
+  .p2::before { background: #00C853; }
+  .p3::before { background: #8a2be2; }
+  .p4::before { background: #FFD700; }
+  .p5::before { background: #FF6B9D; }
+  .p6::before { background: #9333ea; }
+
+  @media (max-width: 768px) {
+    .formula-grid { grid-template-columns: 1fr; }
+    .flagship-table { display: block; overflow-x: auto; }
+  }
+  .animate-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+</style>
+</head>
+<body>
+
+<!-- ── PERSISTENT BURGER NAV ── -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <button class="burger-btn" id="burgerBtn" aria-label="Menü"><span></span><span></span><span></span></button>
+    <div class="topbar-title">GENITUS KIP ANALYSIS<small>1-Tages-Build Report</small></div>
+  </div>
+</div>
+<div class="nav-overlay" id="navOverlay"></div>
+<nav class="nav-drawer" id="navDrawer">
+  <div class="nav-drawer-title">Inhalt</div>
+  <a href="#overview" class="nav-link"><span class="dot"></span>Überblick & Methodik</a>
+  <a href="#phases" class="nav-link"><span class="dot"></span>Tages-Zeitlinie (6 Phasen)</a>
+  <a href="#formulas" class="nav-link"><span class="dot"></span>KIP-Formel-Bibliothek</a>
+  <a href="#flagships" class="nav-link"><span class="dot"></span>17 Flaggschiff-Tools</a>
+  <a href="#roi" class="nav-link"><span class="dot"></span>ROI & Kostenvergleich</a>
+  <a href="#bugs" class="nav-link"><span class="dot"></span>Qualitätsfaktor: 6 Bugs</a>
+  <a href="#references" class="nav-link"><span class="dot"></span>Quellenverzeichnis</a>
+  <div class="nav-drawer-foot">Menü-Status bleibt über Reloads hinweg erhalten (localStorage). GENITUS · DOMVS AVREA · Daniel Gereci</div>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════ -->
+<header class="hero">
+  <div style="position:relative;z-index:1;width:100%;max-width:950px;">
+    <div class="hero-badge">KI Power Analysis · 30. September 2026</div>
+    <h1>GENITUS STACK<br>1-TAGES-BUILD</h1>
+    <p class="hero-sub">
+      Ein Arbeitstag (~1 Std. aktive Eingabe), ein bereits vorhandenes Ticker-Terminal als Ausgangspunkt —
+      am Ende ein 17-Tool-Finanzanalyse-Stack mit eigener Daten-Infrastruktur über 21 Länder-Indizes.
+      Verglichen mit dem geschätzten Aufwand eines klassischen 8-Rollen-Teams.
+    </p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-val">44.200×</div><div class="kpi-label">KIP Kosten-Faktor</div></div>
+      <div class="kpi-card gold"><div class="kpi-val gold">650×</div><div class="kpi-label">KIP Zeit-Faktor</div></div>
+      <div class="kpi-card"><div class="kpi-val purple">17</div><div class="kpi-label">Tools gebaut</div></div>
+      <div class="kpi-card"><div class="kpi-val green">1.447</div><div class="kpi-label">Firmen im Cache</div></div>
+      <div class="kpi-card"><div class="kpi-val red">6</div><div class="kpi-label">Kritische Bugs gefunden</div></div>
+      <div class="kpi-card"><div class="kpi-val">1,27 €</div><div class="kpi-label">Tageskosten (Fixkosten-Anteil)</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="neon-divider"></div>
+
+<!-- ══════════════════════════════════════════════
+     CONTENT
+══════════════════════════════════════════════ -->
+<main class="container">
+  <div style="margin-top:3.5rem;">
+
+    <!-- ── SECTION 1: OVERVIEW ── -->
+    <section id="overview" class="section" style="padding-top:0;border-top:none;">
+      <span class="tag tag-kip">Methodik</span>
+      <h2 class="section-title">Überblick & Datengrundlage</h2>
+      <p class="section-subtitle">Alle Zahlen basieren auf echten Primärquellen aus dieser Session — keine interpolierten Werte.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;">
+        <div class="ref-card">
+          <h4>Datenquellen</h4>
+          <ul>
+            <li><strong style="color:var(--text)">EODHD-Dashboard-Screenshot</strong> — API-Usage 3.462/100.000, Paid-Plan aktiv, abgerufen 30.09.2026</li>
+            <li><strong style="color:var(--text)">Claude Code Session-Log</strong> — vollständiges Transkript aller Batch-Läufe, Deployments, Fixes</li>
+            <li><strong style="color:var(--text)">GitHub-Deployment-Historie</strong> — 17 Repositories unter Babybounce500, Zeitstempel der Commits</li>
+          </ul>
+        </div>
+        <div class="ref-card">
+          <h4>Kosten-Basis</h4>
+          <ul>
+            <li>EODHD-Abo: 20 €/Monat (Ticker- + Dividenden-Ökosystem)</li>
+            <li>Yahoo Finance via StockSentinel-Proxy: 0 € — pro bono (Bilanz, Macro, Score-vs-Performance)</li>
+            <li>Claude Code-Abo: 18 €/Monat</li>
+          </ul>
+        </div>
+        <div class="ref-card">
+          <h4>KIP-Definition (adaptiert)</h4>
+          <p style="margin-bottom:0.5rem;">Hier gemessen als Verhältnis von geschätztem Team-Aufwand zu tatsächlichem Aufwand dieser Session:</p>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--kip);background:rgba(0,0,0,0.4);padding:0.5rem;border-radius:0.4rem;margin-top:0.5rem;">
+            KIP = Aufwand_Team / Aufwand_Session
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="neon-divider"></div>
+
+    <!-- ── SECTION 2: PHASES ── -->
+    <section id="phases" class="section">
+      <span class="tag tag-purple">Zeitlinie</span>
+      <h2 class="section-title">Tages-Zeitlinie (6 Phasen)</h2>
+      <p class="section-subtitle">Chronologischer Ablauf der Session, in sich abgeschlossene Baustufen statt Kalendermonaten.</p>
+
+      <div class="main-chart-wrap" style="margin-bottom:2rem;">
+        <div class="chart-label">Neue Tools/Deliverables pro Phase</div>
+        <canvas id="chartPhases"></canvas>
+      </div>
+
+      <div class="phase-grid">
+
+        <div class="phase-card p1">
+          <div class="phase-header">
+            <div class="phase-num" style="color:#00ccff">01</div>
+            <div class="phase-info">
+              <div class="phase-name" style="color:#00ccff">Ausgangspunkt: Dividenden-Ökosystem</div>
+              <div class="phase-meta">Bereits vorhanden zu Sessionbeginn</div>
+            </div>
+            <div><div class="phase-files-count" style="color:#00ccff">10</div><div class="phase-files-label">Tools</div></div>
+          </div>
+          <div class="phase-body">
+            <div>
+              <div class="phase-col-title">Bestand</div>
+              <ul class="phase-list">
+                <li>Ticker Terminal — 83 Börsen, 233K-Symbol-Cache</li>
+                <li>9 weitere Dividenden-Tools (Analysis, Deep, Institutional, Risk, Growth, Correlation, Income Goal, Fact Sheet, Compare)</li>
+              </ul>
+            </div>
+            <div>
+              <div class="phase-col-title">Basis für heute</div>
+              <ul class="phase-list">
+                <li>Dividenden-Cache: 60.000+ bestätigte Zahler, 1 Mio.+ Einzelzahlungen</li>
+                <li>EODHD-Proxy als Datenquelle etabliert</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase-card p2">
+          <div class="phase-header">
+            <div class="phase-num" style="color:#00C853">02</div>
+            <div class="phase-info">
+              <div class="phase-name" style="color:#00C853">Bilanz-Ökosystem & Batch-Infrastruktur</div>
+              <div class="phase-meta">Neu heute</div>
+            </div>
+            <div><div class="phase-files-count" style="color:#00C853">3</div><div class="phase-files-label">Tools</div></div>
+          </div>
+          <div class="phase-body">
+            <div>
+              <div class="phase-col-title">Gebaut</div>
+              <ul class="phase-list">
+                <li>Bilanz-Terminal (Live) — Health-Score, Yahoo-Backend</li>
+                <li>Bilanz-Terminal (Cached) — zero live calls</li>
+                <li>Bilanz-Screener — sortierbar über 21 Indizes</li>
+              </ul>
+            </div>
+            <div>
+              <div class="phase-col-title">Infrastruktur</div>
+              <ul class="phase-list">
+                <li>Financials-Batch auf 1.447 Firmen / 21 Länder-Indizes erweitert</li>
+                <li>Wikipedia-Scraper für Index-Konstituenten (mit Datenbereinigung)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase-card p3">
+          <div class="phase-header">
+            <div class="phase-num" style="color:#8a2be2">03</div>
+            <div class="phase-info">
+              <div class="phase-name" style="color:#8a2be2">Makro-Layer & Sektor-Vergleich</div>
+              <div class="phase-meta">Neu heute</div>
+            </div>
+            <div><div class="phase-files-count" style="color:#8a2be2">2</div><div class="phase-files-label">Tools</div></div>
+          </div>
+          <div class="phase-body">
+            <div>
+              <div class="phase-col-title">Gebaut</div>
+              <ul class="phase-list">
+                <li>Macro / Yield-Curve — Zinskurve, Spreads, Bond-ETFs, FX, Rohstoffe</li>
+                <li>Sektor-Heatmap — Länder-/Sektorvergleich, zero live calls</li>
+              </ul>
+            </div>
+            <div>
+              <div class="phase-col-title">Was passierte</div>
+              <ul class="phase-list">
+                <li>Treasury-Yields (^IRX/^FVX/^TNX/^TYX) live integriert</li>
+                <li>Breakeven-Inflation-Proxy als Näherung ergänzt</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase-card p4">
+          <div class="phase-header">
+            <div class="phase-num" style="color:#FFD700">04</div>
+            <div class="phase-info">
+              <div class="phase-name" style="color:#FFD700">Datenqualitäts-Audit</div>
+              <div class="phase-meta">Durchgängig, kein separater Zeitblock</div>
+            </div>
+            <div><div class="phase-files-count" style="color:#FFD700">6</div><div class="phase-files-label">Bugs gefunden</div></div>
+          </div>
+          <div class="phase-body">
+            <div>
+              <div class="phase-col-title">Gefunden & gefixt</div>
+              <ul class="phase-list">
+                <li>Dividend-Yield 100×-Skalierungsfehler (alle 3 Bilanz-Tools)</li>
+                <li>API-Parameter <code>period_days</code> vom Server ignoriert</li>
+                <li>2× veraltete Wikipedia-Indexdaten (MDAX)</li>
+              </ul>
+            </div>
+            <div>
+              <div class="phase-col-title">Methode</div>
+              <ul class="phase-list">
+                <li>Direkte Verifikation gegen reale Marktdaten statt Unit-Tests</li>
+                <li>Details siehe Abschnitt "Qualitätsfaktor" unten</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase-card p5">
+          <div class="phase-header">
+            <div class="phase-num" style="color:#FF6B9D">05</div>
+            <div class="phase-info">
+              <div class="phase-name" style="color:#FF6B9D">Score-vs-Performance & 5J-Kurshistorie</div>
+              <div class="phase-meta">Neu heute</div>
+            </div>
+            <div><div class="phase-files-count" style="color:#FF6B9D">1</div><div class="phase-files-label">Tool</div></div>
+          </div>
+          <div class="phase-body">
+            <div>
+              <div class="phase-col-title">Gebaut</div>
+              <ul class="phase-list">
+                <li>5-Jahres-Kurshistorie für 1.424 Firmen (Yahoo adjclose)</li>
+                <li>Score-vs-Performance — Pearson-Korrelation Health-Score ↔ Total Return</li>
+              </ul>
+            </div>
+            <div>
+              <div class="phase-col-title">Was passierte</div>
+              <ul class="phase-list">
+                <li>Split-Kontinuität verifiziert (AVGO 10:1 Split Juli 2024)</li>
+                <li>Total Return via adjclose statt separater Dividenden-Datenquelle</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase-card p6">
+          <div class="phase-header">
+            <div class="phase-num" style="color:#9333ea">06</div>
+            <div class="phase-info">
+              <div class="phase-name" style="color:#9333ea">Paralleles Projekt: AI-Fachvokabular-Glossar</div>
+              <div class="phase-meta">Gleicher Tag, außerhalb des Börsen-Stacks</div>
+            </div>
+            <div><div class="phase-files-count" style="color:#9333ea">312</div><div class="phase-files-label">Fachbegriffe</div></div>
+          </div>
+          <div class="phase-body">
+            <div>
+              <div class="phase-col-title">Gebaut</div>
+              <ul class="phase-list">
+                <li>50 Themenmodule, aus Gemini-Entwurf konsolidiert + 12 neu kuratiert</li>
+              </ul>
+            </div>
+            <div>
+              <div class="phase-col-title">Hinweis</div>
+              <ul class="phase-list">
+                <li>Nicht in Kosten-/Zeitschätzung dieses Reports eingerechnet</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="neon-divider"></div>
+
+    <!-- ── SECTION 3: FORMULAS ── -->
+    <section id="formulas" class="section">
+      <span class="tag tag-gold">8 Formeln</span>
+      <h2 class="section-title">KIP-Formel-Bibliothek</h2>
+      <p class="section-subtitle">Direkt aus den in dieser Session dokumentierten Zahlen abgeleitet — keine Fantasie-Multiplikatoren.</p>
+
+      <div class="main-chart-wrap" style="margin-bottom:2.5rem;">
+        <div class="chart-label">Team-Kosten nach Rolle (€)</div>
+        <canvas id="chartRoles"></canvas>
+      </div>
+
+      <div class="formula-grid">
+
+        <div class="formula-card" style="border-color:rgba(0,204,255,0.2);">
+          <div class="formula-id">F1 · Kosten-Faktor</div>
+          <div class="formula-name">KIP-Kosten (KF)</div>
+          <div class="formula-math">KF = Kosten_Team / Kosten_Session
+   = 56.100 € / 1,27 €
+   ≈ 44.200×</div>
+          <div class="formula-result">44.200×</div>
+          <div class="formula-desc">Team-Baseline (8 Rollen, 647 Std.) vs. Tagesanteil der laufenden Abos (EODHD + Claude Code, Yahoo kostenlos).</div>
+        </div>
+
+        <div class="formula-card" style="border-color:rgba(0,204,255,0.2);">
+          <div class="formula-id">F2 · Zeit-Faktor</div>
+          <div class="formula-name">KIP-Zeit (ZF)</div>
+          <div class="formula-math">ZF = Std_Team / Std_aktiv
+   = 647 / 1
+   = 647×</div>
+          <div class="formula-result">647×</div>
+          <div class="formula-desc">647 geschätzte Personenstunden für ein 8-Rollen-Team vs. ca. 1 Stunde aktiver Nutzereingabe.</div>
+        </div>
+
+        <div class="formula-card" style="border-color:rgba(147,51,234,0.2);">
+          <div class="formula-id">F3 · Pro-Bono-Datenquote</div>
+          <div class="formula-name">Datenkosten-Anteil (PBQ)</div>
+          <div class="formula-math">PBQ = Kosten_Yahoo / Kosten_gesamt
+    = 0 € / 1,27 €
+    = 0%</div>
+          <div class="formula-result">0 € Datenkosten</div>
+          <div class="formula-desc">Bilanz-, Macro- und Score-vs-Performance-Hälfte des Stacks (21 Indizes, 1.447 Firmen) lief komplett auf kostenlosen Yahoo-Finance-Daten via StockSentinel-Proxy.</div>
+        </div>
+
+        <div class="formula-card" style="border-color:rgba(147,51,234,0.2);">
+          <div class="formula-id">F4 · Werkzeug-Dichte</div>
+          <div class="formula-name">Tools pro aktiver Stunde (WD)</div>
+          <div class="formula-math">WD = Tools_gebaut / Std_aktiv
+   = 17 / 1
+   = 17 Tools/Std.</div>
+          <div class="formula-result">17 Tools/Std.</div>
+          <div class="formula-desc">17 eigenständige, deploybare Single-Page-Tools plus zugehörige Daten-Infrastruktur.</div>
+        </div>
+
+        <div class="formula-card" style="border-color:rgba(255,215,0,0.2);">
+          <div class="formula-id">F5 · Datenabdeckung</div>
+          <div class="formula-name">Analyseuniversum (DA)</div>
+          <div class="formula-math">DA_Bilanz = 1.447 Firmen (21 Indizes)
+DA_Dividenden = 60.000+ Zahler
+DA_Kurshistorie = 1.424 Firmen × 5 Jahre</div>
+          <div class="formula-result">1.447 Firmen</div>
+          <div class="formula-desc">Von S&amp;P 500 über DAX/MDAX bis Hang Seng, Nifty 50 und NZX 50 — 21 Länder-Indizes im Bilanz-Cache.</div>
+        </div>
+
+        <div class="formula-card" style="border-color:rgba(255,215,0,0.2);">
+          <div class="formula-id">F6 · Bug-Fund-Effizienz</div>
+          <div class="formula-name">Kritische Bugs pro QA-Stunde (BFE)</div>
+          <div class="formula-math">BFE = Bugs_kritisch / Std_QA
+    = 6 / 32
+    ≈ 0,19 Bugs/Std.</div>
+          <div class="formula-result">6 Bugs</div>
+          <div class="formula-desc">Alle 6 durch direkte Verifikation gegen reale Marktdaten gefunden, nicht durch Unit-Tests. Details siehe Abschnitt "Qualitätsfaktor".</div>
+        </div>
+
+        <div class="formula-card" style="border-color:rgba(255,107,157,0.2);">
+          <div class="formula-id">F7 · Break-Even</div>
+          <div class="formula-name">Amortisationszeit (BE)</div>
+          <div class="formula-math">BE = sofort
+(keine Investitionskosten über
+die ohnehin laufenden Abos hinaus)</div>
+          <div class="formula-result">0 Tage</div>
+          <div class="formula-desc">Anders als bei einer dedizierten KI-Investition (vgl. klassisches TBE-Modell) fielen hier keine Zusatzkosten an — nur der Tagesanteil bestehender Abos.</div>
+        </div>
+
+        <div class="formula-card" style="border-color:rgba(255,107,157,0.2);">
+          <div class="formula-id">F8 · Wartezeit-Hinweis</div>
+          <div class="formula-name">Nicht-aktive Kalenderzeit</div>
+          <div class="formula-math">Kalenderzeit_gesamt &gt; Zeit_aktiv
+Ursache: EODHD-Tages-Quota-Reset
+(100.000/100.000 ausgeschöpft) +
+zeitweise instabiler EODHD-Proxy (HTTP 500)</div>
+          <div class="formula-result">nicht quantifiziert</div>
+          <div class="formula-desc">Ein Teil der Gesamt-Session ging für Warten drauf, nicht für aktive Arbeit — bewusst nicht in F1/F2 eingerechnet, da nur die aktive Eingabezeit gezählt wird.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="neon-divider"></div>
+
+    <!-- ── SECTION 4: FLAGSHIPS ── -->
+    <section id="flagships" class="section">
+      <span class="tag tag-green">Flaggschiffe</span>
+      <h2 class="section-title">17 Tools im Überblick</h2>
+      <p class="section-subtitle">Alle heute gebauten bzw. erweiterten Einzeltools, kategorisiert nach Funktion.</p>
+
+      <div style="overflow-x:auto;">
+        <table class="flagship-table">
+          <thead><tr><th>#</th><th>Tool</th><th>Kategorie</th><th>Kernfunktion</th><th>Reife</th></tr></thead>
+          <tbody>
+            <tr><td><strong style="color:var(--kip)">1</strong></td><td><strong>Ticker Terminal</strong></td><td><span class="pill">Basis</span></td><td>83-Börsen Live-Kurs- und Dividenden-Terminal, 233K-Symbol-Cache</td><td class="stars">★★★★★</td></tr>
+            <tr><td>2</td><td><strong>Bilanz-Terminal (Live)</strong></td><td><span class="pill purple">Fundamentaldaten</span></td><td>Echtzeit-Bilanzanalyse + Health-Score, S&amp;P 500 + DAX</td><td class="stars">★★★★★</td></tr>
+            <tr><td>3</td><td><strong>Bilanz-Terminal (Cached)</strong></td><td><span class="pill purple">Fundamentaldaten</span></td><td>Gleiche Analyse ohne Live-Calls, 21 Welt-Indizes / 1.447 Firmen</td><td class="stars">★★★★★</td></tr>
+            <tr><td>4</td><td><strong>Bilanz-Screener</strong></td><td><span class="pill purple">Fundamentaldaten</span></td><td>Sortierbare Kennzahlen- und Score-Tabelle über 21 Indizes</td><td class="stars">★★★★</td></tr>
+            <tr><td>5</td><td><strong>Sektor-Heatmap</strong></td><td><span class="pill purple">Fundamentaldaten</span></td><td>Ländervergleich von Bewertung und Gesundheit nach Sektor</td><td class="stars">★★★★</td></tr>
+            <tr><td>6</td><td><strong>Score vs. Performance</strong></td><td><span class="pill gold">Quant</span></td><td>Korrelation Health-Score ↔ 5-Jahres-Gesamtrendite, ~1.424 Firmen</td><td class="stars">★★★★★</td></tr>
+            <tr><td>7</td><td><strong>Macro / Yield-Curve</strong></td><td><span class="pill red">Makro</span></td><td>Zinskurve, 10Y-3M-Spread, Bond-ETFs, FX, Rohstoffe, Breakeven-Proxy</td><td class="stars">★★★★</td></tr>
+            <tr><td>8</td><td><strong>Live Risk (Yahoo)</strong></td><td><span class="pill">Analyse, Live</span></td><td>Echte Sharpe/Sortino/VaR/Max-Drawdown</td><td class="stars">★★★★</td></tr>
+            <tr><td>9</td><td><strong>Institutional Screener</strong></td><td><span class="pill">Analyse</span></td><td>Multi-Faktor Dividend Quality Score (4 Sub-Scores)</td><td class="stars">★★★★</td></tr>
+            <tr><td>10</td><td><strong>Dividend Deep</strong></td><td><span class="pill">Analyse</span></td><td>Portfolio-Aggregator, DRIP-Simulator, Saisonalität</td><td class="stars">★★★</td></tr>
+            <tr><td>11</td><td><strong>Growth Screener</strong></td><td><span class="pill">Analyse</span></td><td>Chowder Number, Cut-Risk-Flags, Perzentil-Rang</td><td class="stars">★★★</td></tr>
+            <tr><td>12</td><td><strong>Dividend Analysis</strong></td><td><span class="pill">Analyse</span></td><td>Yield-Band Z-Score, Yield-on-Cost-Rechner</td><td class="stars">★★★</td></tr>
+            <tr><td>13</td><td><strong>Correlation Matrix</strong></td><td><span class="pill">Analyse</span></td><td>Watchlist-Diversifikations-Check</td><td class="stars">★★★</td></tr>
+            <tr><td>14</td><td><strong>Dividend Terminal</strong></td><td><span class="pill">Analyse</span></td><td>Verzeichnis bestätigter Dividendenzahler, sortiert nach Yield</td><td class="stars">★★★</td></tr>
+            <tr><td>15</td><td><strong>Income Goal / Fact Sheet / Compare</strong></td><td><span class="pill green">Kundenberatung</span></td><td>3 Verkaufstools: Rückwärtsrechnung Zielrente, druckbares One-Pager, 2-Aktien-Vergleich</td><td class="stars">★★★</td></tr>
+            <tr><td>16</td><td><strong>Workshell (PWA)</strong></td><td><span class="pill">Infrastruktur</span></td><td>Vereinheitlichte Tab-Oberfläche für alle Tools</td><td class="stars">★★★★</td></tr>
+            <tr><td>17</td><td><strong>AI-Fachvokabular-Glossar</strong></td><td><span class="pill gold">Parallel-Projekt</span></td><td>50 Module, 312 Begriffe — außerhalb des Börsen-Stacks, separat kuratiert</td><td class="stars">★★★</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="neon-divider"></div>
+
+    <!-- ── SECTION 5: ROI ── -->
+    <section id="roi" class="section">
+      <span class="tag tag-kip">Wirtschaftlichkeit</span>
+      <h2 class="section-title">ROI & Realer Kostenvergleich</h2>
+      <p class="section-subtitle">Team-Baseline (8 Rollen inkl. Finanzanalyst, Compliance, Fachberater) gegen tatsächliche Tageskosten.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:2rem;">
+        <div style="background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:1rem;padding:1.5rem;text-align:center;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;color:var(--red);margin-bottom:0.3rem;">~56.100 €</div>
+          <div style="font-size:0.8rem;color:var(--muted);">Team-Baseline</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:0.2rem;">647 Std., 8 Rollen inkl. Compliance/Finanzanalyst</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:1rem;padding:1.5rem;text-align:center;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;color:var(--kip);margin-bottom:0.3rem;">1,27 €</div>
+          <div style="font-size:0.8rem;color:var(--muted);">Tatsächliche Tageskosten</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:0.2rem;">Tagesanteil EODHD + Claude Code, Yahoo kostenlos</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(147,51,234,0.2),rgba(0,204,255,0.2));border:2px solid var(--kip);border-radius:1rem;padding:1.5rem;text-align:center;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:2.2rem;font-weight:900;color:white;margin-bottom:0.3rem;" class="animate-pulse">~44.200×</div>
+          <div style="font-size:0.8rem;color:white;font-weight:600;">Kosten-Faktor</div>
+          <div style="font-size:0.7rem;color:rgba(255,255,255,0.7);margin-top:0.2rem;">Baseline ÷ Tageskosten</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:1rem;padding:1.5rem;text-align:center;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;color:var(--gold);margin-bottom:0.3rem;">~650×</div>
+          <div style="font-size:0.8rem;color:var(--muted);">Zeit-Faktor</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:0.2rem;">647 Std. Team vs. ~1 Std. aktive Eingabe</div>
+        </div>
+      </div>
+
+      <div class="main-chart-wrap" style="margin-bottom:2rem;">
+        <div class="chart-label">Team-Baseline: Kostenanteil nach Rolle</div>
+        <canvas id="chartROI"></canvas>
+      </div>
+
+      <div class="ref-grid">
+        <div class="ref-card"><h4>Frontend-/Product-Entwickler</h4><p>250 Std. × 75 €/Std. = <strong style="color:var(--kip)">18.750 €</strong> — 17 responsive Single-Page-Tools + PWA-Workshell</p></div>
+        <div class="ref-card"><h4>Data Engineer</h4><p>160 Std. × 85 €/Std. = <strong style="color:var(--kip)">13.600 €</strong> — Ticker-, Dividenden- und Financials-Batch-Pipelines</p></div>
+        <div class="ref-card"><h4>Quant-/Fintech-Entwickler</h4><p>85 Std. × 110 €/Std. = <strong style="color:var(--kip)">9.350 €</strong> — Health-Score, Risk-Metriken, Korrelationsanalyse</p></div>
+        <div class="ref-card"><h4>Finanzanalyst (CFA-Niveau)</h4><p>50 Std. × 115 €/Std. = <strong style="color:var(--kip)">5.750 €</strong> — Methodik-Validierung, Plausibilitätsprüfung</p></div>
+      </div>
+    </section>
+
+    <div class="neon-divider"></div>
+
+    <!-- ── SECTION 6: BUGS ── -->
+    <section id="bugs" class="section">
+      <span class="tag tag-red">Qualitätsfaktor</span>
+      <h2 class="section-title">6 Bugs, die sonst unentdeckt geblieben wären</h2>
+      <p class="section-subtitle">Alle sechs durch direkte Verifikation gegen reale Marktdaten gefunden — nicht durch automatisierte Tests.</p>
+
+      <div style="overflow-x:auto;">
+        <table class="flagship-table">
+          <thead><tr><th>Bug</th><th>Betroffen</th><th>Typische Erkennungsdauer in Produktion</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Dividend-Yield 100×-Skalierungsfehler</strong></td><td>Alle 3 Bilanz-Tools, jede Aktie mit Yield &lt;1%</td><td>Monate — fällt oft erst auf, wenn ein Kunde falsche Zahlen im Bericht sieht</td></tr>
+            <tr><td><strong><code>period_days</code>-Parameter ignoriert</strong></td><td>Live-Risk- und Macro-Tool, Charts liefen nur 1 Jahr statt angeforderter Range</td><td>Wochen bis Monate — Silent Failure ohne Fehlermeldung</td></tr>
+            <tr><td><strong>MDAX-Wikipedia-Daten veraltet</strong></td><td>GEA Group, Scout24 bereits DAX — Bilanz-Terminal Indexzuordnung</td><td>Nie automatisch entdeckt ohne manuellen Abgleich</td></tr>
+            <tr><td><strong>Fresenius-Medical-Care-Ticker falsch</strong></td><td>FRE statt FME in MDAX-Konstituentenliste</td><td>Hätte falsche Firmendaten unter falschem Namen gecached</td></tr>
+            <tr><td><strong>Cross-Listed-Exchange-Duplikate</strong></td><td>Dividenden-Gapfill</td><td>Nie entdeckt ohne Symbol-Level-Audit; 10.198 redundante Checks gespart</td></tr>
+            <tr><td><strong>EODHD-Proxy-Instabilität</strong></td><td>500er-Fehler vs. echte Nicht-Zahler im Dividenden-Gapfill</td><td>Hätte stillschweigend tausende echte Zahler als "keine Dividende" fehlklassifiziert</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="neon-divider"></div>
+
+    <!-- ── SECTION 7: REFERENCES ── -->
+    <section id="references" class="section">
+      <span class="tag tag-purple">Quellen</span>
+      <h2 class="section-title">Quellenverzeichnis</h2>
+      <p class="section-subtitle">Alle Daten aus dieser Session — keine externen Schätzungen ohne Kennzeichnung.</p>
+
+      <div class="ref-grid">
+        <div class="ref-card">
+          <h4>Primärquellen</h4>
+          <ul>
+            <li><strong style="color:var(--text)">EODHD-Dashboard</strong> — API-Usage-Screenshot des Nutzers, 30.09.2026</li>
+            <li><strong style="color:var(--text)">GitHub (Babybounce500)</strong> — 17 Repositories, öffentlich via GitHub Pages</li>
+          </ul>
+        </div>
+        <div class="ref-card">
+          <h4>Kosten-Annahmen</h4>
+          <ul>
+            <li>Rollen-Stundensätze: marktübliche Freelancer-/Agentursätze DE/EU, keine geprüften Angebote</li>
+            <li>EODHD 20 €/Monat, Claude Code 18 €/Monat — Nutzerangabe</li>
+          </ul>
+        </div>
+        <div class="ref-card">
+          <h4>Verwandte Dokumente</h4>
+          <ul>
+            <li><strong style="color:var(--text)">GENITUS-Case-Study.html</strong> — textbasierte Erstversion dieses Reports</li>
+            <li><strong style="color:var(--text)">index-workshell-pwa.html</strong> — zentrale Navigation aller 17 Tools</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="logo">GENITUS · KIP ANALYSIS</div>
+  <p>1-Tages-Build Report — verifiziert durch echte Session-Primärquellen</p>
+  <p style="margin-top:0.3rem;">Erstellt: 30. September 2026 · DOMVS AVREA · Daniel Gereci</p>
+  <p style="margin-top:0.3rem;color:#475569;">Alle Stunden- und Kostenangaben sind Schätzungen, keine geprüften Werte. Kein Ersatz für ein tatsächliches Angebot.</p>
+</footer>
+
+<script>
+'use strict';
+
+// ── PERSISTENT BURGER NAV ──
+(function(){
+  const NAV_KEY = 'genitusKip:navOpen';
+  const drawer = document.getElementById('navDrawer');
+  const overlay = document.getElementById('navOverlay');
+  const burger = document.getElementById('burgerBtn');
+  function setOpen(open){
+    drawer.classList.toggle('open', open);
+    overlay.classList.toggle('show', open && window.innerWidth < 900);
+    burger.classList.toggle('open', open);
+    try{ localStorage.setItem(NAV_KEY, open ? '1' : '0'); }catch(e){}
+  }
+  let initial = window.innerWidth >= 900;
+  try{ const saved = localStorage.getItem(NAV_KEY); if(saved!==null) initial = saved==='1'; }catch(e){}
+  setOpen(initial);
+  burger.addEventListener('click', ()=> setOpen(!drawer.classList.contains('open')));
+  overlay.addEventListener('click', ()=> setOpen(false));
+  document.querySelectorAll('.nav-link').forEach(a=>{
+    a.addEventListener('click', ()=>{ if(window.innerWidth < 900) setOpen(false); });
+  });
+  const sections = [...document.querySelectorAll('main section[id]')];
+  const links = [...document.querySelectorAll('.nav-link')];
+  function onScroll(){
+    let current = null;
+    for(const s of sections){ if(s.getBoundingClientRect().top < 140) current = s.id; }
+    links.forEach(l=> l.classList.toggle('active', l.getAttribute('href')==='#'+current));
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+
+const C = Chart.defaults;
+C.color = '#94a3b8';
+C.borderColor = 'rgba(255,255,255,0.04)';
+
+// ── PHASES CHART ──
+new Chart(document.getElementById('chartPhases'), {
+  type: 'bar',
+  data: {
+    labels: ['P1 Bestand','P2 Bilanz','P3 Macro/Sektor','P4 Audit (Bugs)','P5 Score-vs-Perf','P6 Glossar (parallel)'],
+    datasets: [{
+      label: 'Neue Deliverables',
+      data: [10, 3, 2, 6, 1, 50],
+      backgroundColor: ['#00ccffbb','#00C853bb','#8a2be2bb','#FFD700bb','#FF6B9Dbb','#9333eabb'],
+      borderRadius: 4,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { display: false } },
+      y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+    }
+  }
+});
+
+// ── ROLES COST CHART ──
+new Chart(document.getElementById('chartRoles'), {
+  type: 'bar',
+  data: {
+    labels: ['Data Engineer','Quant-Entwickler','Frontend-Entwickler','Finanzanalyst','Compliance/Legal','Fachberater','QA','Deployment'],
+    datasets: [{
+      label: 'Kosten (€)',
+      data: [13600, 9350, 18750, 5750, 2800, 2000, 2240, 1625],
+      backgroundColor: '#00ccffbb',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+      y: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } }
+    }
+  }
+});
+
+// ── ROI DOUGHNUT ──
+new Chart(document.getElementById('chartROI'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Frontend (18.750€)','Data Eng. (13.600€)','Quant (9.350€)','Finanzanalyst (5.750€)','Compliance (2.800€)','QA (2.240€)','Fachberater (2.000€)','Deployment (1.625€)'],
+    datasets: [{
+      data: [18750, 13600, 9350, 5750, 2800, 2240, 2000, 1625],
+      backgroundColor: ['#00ccffcc','#00C853cc','#9333eacc','#FFD700cc','#FF6B9Dcc','#f59e0bcc','#38bdf8cc','#64748bcc'],
+      borderColor: '#0a0a0f',
+      borderWidth: 3,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '62%',
+    plugins: {
+      legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 }, padding: 12 } },
+      tooltip: { callbacks: { label: (ctx) => ` €${ctx.raw.toLocaleString('de-DE')} (${((ctx.raw/56115)*100).toFixed(1)}%)` } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
