@@ -617,32 +617,38 @@ Summe: 200.000 API-Calls, 2 Dashboard-Screenshots</div>
     <section id="flagships" class="section">
       <span class="tag tag-green">Flaggschiffe</span>
       <h2 class="section-title">17 Tools im Überblick</h2>
-      <p class="section-subtitle">Alle heute gebauten bzw. erweiterten Einzeltools, kategorisiert nach Funktion.</p>
+      <p class="section-subtitle">Kernfunktionen siehe Abschnitt "Tages-Zeitlinie" oben. Diese Tabelle bewertet stattdessen die <strong style="color:var(--text)">Reife</strong> nach einem offengelegten Maßstab.</p>
+
+      <div class="ref-card" style="margin-bottom:1.5rem;">
+        <h4>Methodik der Reife-Bewertung (korrigiert)</h4>
+        <p>Frühere Version verwechselte "technisch aufwendig" mit "reif" — das brand-neue Score-vs-Performance-Tool bekam 5★, während der viel länger gelaufene, simplere Dividend Terminal nur 3★ bekam. Rückwärts. Neuer Maßstab, vier Kriterien: <strong style="color:var(--text)">Feldtest</strong> (wie lange/oft schon genutzt und iteriert), <strong style="color:var(--text)">Live-Abhängigkeit</strong> (Cache = robust gegen Proxy-Ausfälle, Live = fragil — wir hatten heute zwei echte Proxy-Ausfälle), <strong style="color:var(--text)">bekannte Bugs</strong> (gefunden+gefixt zählt positiv, nicht negativ), <strong style="color:var(--text)">Komplexität</strong> (mehr bewegliche Teile = mehr potenzielle Bug-Fläche).</p>
+      </div>
 
       <div style="overflow-x:auto;">
         <table class="flagship-table">
-          <thead><tr><th>#</th><th>Tool</th><th>Kategorie</th><th>Kernfunktion</th><th>Reife</th></tr></thead>
+          <thead><tr><th>#</th><th>Tool</th><th>Feldtest</th><th>Live-Abh.</th><th>Bekannte Bugs</th><th>Reife</th></tr></thead>
           <tbody>
-            <tr><td><strong style="color:var(--kip)">1</strong></td><td><strong>Ticker Terminal</strong></td><td><span class="pill">Basis</span></td><td>83-Börsen Live-Kurs- und Dividenden-Terminal, 233K-Symbol-Cache</td><td class="stars">★★★★★</td></tr>
-            <tr><td>2</td><td><strong>Bilanz-Terminal (Live)</strong></td><td><span class="pill purple">Fundamentaldaten</span></td><td>Echtzeit-Bilanzanalyse + Health-Score, S&amp;P 500 + DAX</td><td class="stars">★★★★★</td></tr>
-            <tr><td>3</td><td><strong>Bilanz-Terminal (Cached)</strong></td><td><span class="pill purple">Fundamentaldaten</span></td><td>Gleiche Analyse ohne Live-Calls, 21 Welt-Indizes / 1.447 Firmen</td><td class="stars">★★★★★</td></tr>
-            <tr><td>4</td><td><strong>Bilanz-Screener</strong></td><td><span class="pill purple">Fundamentaldaten</span></td><td>Sortierbare Kennzahlen- und Score-Tabelle über 21 Indizes</td><td class="stars">★★★★</td></tr>
-            <tr><td>5</td><td><strong>Sektor-Heatmap</strong></td><td><span class="pill purple">Fundamentaldaten</span></td><td>Ländervergleich von Bewertung und Gesundheit nach Sektor</td><td class="stars">★★★★</td></tr>
-            <tr><td>6</td><td><strong>Score vs. Performance</strong></td><td><span class="pill gold">Quant</span></td><td>Korrelation Health-Score ↔ 5-Jahres-Gesamtrendite, ~1.424 Firmen</td><td class="stars">★★★★★</td></tr>
-            <tr><td>7</td><td><strong>Macro / Yield-Curve</strong></td><td><span class="pill red">Makro</span></td><td>Zinskurve, 10Y-3M-Spread, Bond-ETFs, FX, Rohstoffe, Breakeven-Proxy</td><td class="stars">★★★★</td></tr>
-            <tr><td>8</td><td><strong>Live Risk (Yahoo)</strong></td><td><span class="pill">Analyse, Live</span></td><td>Echte Sharpe/Sortino/VaR/Max-Drawdown</td><td class="stars">★★★★</td></tr>
-            <tr><td>9</td><td><strong>Institutional Screener</strong></td><td><span class="pill">Analyse</span></td><td>Multi-Faktor Dividend Quality Score (4 Sub-Scores)</td><td class="stars">★★★★</td></tr>
-            <tr><td>10</td><td><strong>Dividend Deep</strong></td><td><span class="pill">Analyse</span></td><td>Portfolio-Aggregator, DRIP-Simulator, Saisonalität</td><td class="stars">★★★</td></tr>
-            <tr><td>11</td><td><strong>Growth Screener</strong></td><td><span class="pill">Analyse</span></td><td>Chowder Number, Cut-Risk-Flags, Perzentil-Rang</td><td class="stars">★★★</td></tr>
-            <tr><td>12</td><td><strong>Dividend Analysis</strong></td><td><span class="pill">Analyse</span></td><td>Yield-Band Z-Score, Yield-on-Cost-Rechner</td><td class="stars">★★★</td></tr>
-            <tr><td>13</td><td><strong>Correlation Matrix</strong></td><td><span class="pill">Analyse</span></td><td>Watchlist-Diversifikations-Check</td><td class="stars">★★★</td></tr>
-            <tr><td>14</td><td><strong>Dividend Terminal</strong></td><td><span class="pill">Analyse</span></td><td>Verzeichnis bestätigter Dividendenzahler, sortiert nach Yield</td><td class="stars">★★★</td></tr>
-            <tr><td>15</td><td><strong>Income Goal / Fact Sheet / Compare</strong></td><td><span class="pill green">Kundenberatung</span></td><td>3 Verkaufstools: Rückwärtsrechnung Zielrente, druckbares One-Pager, 2-Aktien-Vergleich</td><td class="stars">★★★</td></tr>
-            <tr><td>16</td><td><strong>Workshell (PWA)</strong></td><td><span class="pill">Infrastruktur</span></td><td>Vereinheitlichte Tab-Oberfläche für alle Tools</td><td class="stars">★★★★</td></tr>
-            <tr><td>17</td><td><strong>AI-Fachvokabular-Glossar</strong></td><td><span class="pill gold">Parallel-Projekt</span></td><td>50 Module, 312 Begriffe — außerhalb des Börsen-Stacks, separat kuratiert</td><td class="stars">★★★</td></tr>
+            <tr><td><strong style="color:var(--kip)">1</strong></td><td><strong>Ticker Terminal</strong></td><td>Lang, viele Iterationen (83 Börsen einzeln verifiziert)</td><td><span class="pill red">Live</span></td><td>Keine offen</td><td class="stars">★★★★★</td></tr>
+            <tr><td>2</td><td><strong>Bilanz-Terminal (Live)</strong></td><td>Heute gebaut, mehrfach getestet</td><td><span class="pill red">Live</span></td><td>1 gefixt (Yield-Skalierung)</td><td class="stars">★★★</td></tr>
+            <tr><td>3</td><td><strong>Bilanz-Terminal (Cached)</strong></td><td>Heute gebaut, Deep-Link getestet</td><td><span class="pill green">Cache</span></td><td>1 gefixt (Yield-Skalierung)</td><td class="stars">★★★★</td></tr>
+            <tr><td>4</td><td><strong>Bilanz-Screener</strong></td><td>Heute gebaut, aus verifizierter Basis abgeleitet</td><td><span class="pill green">Cache</span></td><td>Keine offen</td><td class="stars">★★★★</td></tr>
+            <tr><td>5</td><td><strong>Sektor-Heatmap</strong></td><td>Heute gebaut</td><td><span class="pill green">Cache</span></td><td>Offengelegte Limitation (vereinfachter Score ohne Liquiditäts-Sub-Score)</td><td class="stars">★★★★</td></tr>
+            <tr><td>6</td><td><strong>Score vs. Performance</strong></td><td>Heute gebaut, null Feldtest-Zeit</td><td><span class="pill green">Cache</span></td><td>4 Kurzhistorien-Ausreißer erst heute entdeckt (SpaceX u.a., &lt;1 Jahr Daten)</td><td class="stars">★★★</td></tr>
+            <tr><td>7</td><td><strong>Macro / Yield-Curve</strong></td><td>Heute gebaut, mehrfach getestet</td><td><span class="pill red">Live</span></td><td>1 gefixt (ignorierter Range-Parameter)</td><td class="stars">★★★</td></tr>
+            <tr><td>8</td><td><strong>Live Risk (Yahoo)</strong></td><td>Lang gelaufen, oft für Spot-Checks genutzt</td><td><span class="pill red">Live</span></td><td>1 gefixt (ignorierter Range-Parameter)</td><td class="stars">★★★</td></tr>
+            <tr><td>9</td><td><strong>Institutional Screener</strong></td><td>Lang gelaufen, nach Nutzer-Kritik echte Sektordaten nachgerüstet</td><td><span class="pill green">Cache</span></td><td>Keine offen</td><td class="stars">★★★★</td></tr>
+            <tr><td>10</td><td><strong>Dividend Deep</strong></td><td>Lang gelaufen, Charts nach Feedback überarbeitet</td><td><span class="pill green">Cache</span></td><td>Keine offen</td><td class="stars">★★★★</td></tr>
+            <tr><td>11</td><td><strong>Growth Screener</strong></td><td>Lang gelaufen, einfache Logik</td><td><span class="pill green">Cache</span></td><td>Keine offen</td><td class="stars">★★★★</td></tr>
+            <tr><td>12</td><td><strong>Dividend Analysis</strong></td><td>Lang gelaufen, Charts nach Feedback überarbeitet</td><td><span class="pill green">Cache</span></td><td>Keine offen</td><td class="stars">★★★★</td></tr>
+            <tr><td>13</td><td><strong>Correlation Matrix</strong></td><td>Lang gelaufen, einfache Logik</td><td><span class="pill green">Cache</span></td><td>Keine offen</td><td class="stars">★★★★</td></tr>
+            <tr><td>14</td><td><strong>Dividend Terminal</strong></td><td>Lang gelaufen, einfachste Architektur im Stack</td><td><span class="pill green">Cache</span></td><td>Keine offen</td><td class="stars">★★★★★</td></tr>
+            <tr><td>15</td><td><strong>Income Goal / Fact Sheet / Compare</strong></td><td>Lang gelaufen, Compliance-Textprüfung bereits durchlaufen</td><td><span class="pill green">Cache</span></td><td>Keine offen</td><td class="stars">★★★★</td></tr>
+            <tr><td>16</td><td><strong>Workshell (PWA)</strong></td><td>Architektur aus früherer bewährter Datei übernommen</td><td><span class="pill green">Cache</span></td><td>Keine offen (nur Nav-Erweiterungen)</td><td class="stars">★★★★</td></tr>
+            <tr><td>17</td><td><strong>AI-Fachvokabular-Glossar</strong></td><td>Heute gebaut, aber rein statisch</td><td><span class="pill green">Zero-API</span></td><td>Keine offen (keine Live-Logik = minimale Bug-Fläche)</td><td class="stars">★★★★</td></tr>
           </tbody>
         </table>
       </div>
+      <p class="note" style="font-size:0.75rem;color:var(--muted);margin-top:0.75rem;">Live-abhängige Tools (rot) trafen heute zweimal auf echte Proxy-Ausfälle (EODHD HTTP 500) — strukturell fragiler als Cache-basierte Tools, unabhängig von Code-Qualität.</p>
     </section>
 
     <div class="neon-divider"></div>
