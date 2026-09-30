@@ -285,6 +285,7 @@
       <div class="kpi-card"><div class="kpi-val green">1.447</div><div class="kpi-label">Firmen im Cache</div></div>
       <div class="kpi-card"><div class="kpi-val red">6</div><div class="kpi-label">Kritische Bugs gefunden</div></div>
       <div class="kpi-card"><div class="kpi-val">1,27 €</div><div class="kpi-label">Tageskosten (Fixkosten-Anteil)</div></div>
+      <div class="kpi-card"><div class="kpi-val gold">200.000</div><div class="kpi-label">EODHD API-Calls (2× Tagesquota)</div></div>
     </div>
   </div>
 </header>
@@ -596,14 +597,15 @@ die ohnehin laufenden Abos hinaus)</div>
         </div>
 
         <div class="formula-card" style="border-color:rgba(255,107,157,0.2);">
-          <div class="formula-id">F8 · Wartezeit-Hinweis</div>
-          <div class="formula-name">Nicht-aktive Kalenderzeit</div>
-          <div class="formula-math">Kalenderzeit_gesamt &gt; Zeit_aktiv
-Ursache: EODHD-Tages-Quota-Reset
-(100.000/100.000 ausgeschöpft) +
-zeitweise instabiler EODHD-Proxy (HTTP 500)</div>
-          <div class="formula-result">nicht quantifiziert</div>
-          <div class="formula-desc">Ein Teil der Gesamt-Session ging für Warten drauf, nicht für aktive Arbeit — bewusst nicht in F1/F2 eingerechnet, da nur die aktive Eingabezeit gezählt wird.</div>
+          <div class="formula-id">F8 · EODHD-Volumen & Wartezeit</div>
+          <div class="formula-name">Zwei volle Tagesquoten (200.000 API-Calls)</div>
+          <div class="formula-math">Nachmittags: 100.000/100.000 erreicht
+→ Wache bis Mitternacht-GMT-Reset
+Nachts/morgens: erneut 100.000/100.000
+(Dividenden-Gapfill) + Proxy-Instabilität (HTTP 500)
+Summe: 200.000 API-Calls, 2 Dashboard-Screenshots</div>
+          <div class="formula-result">200.000 Calls</div>
+          <div class="formula-desc">Reale Kalenderzeit war deutlich länger als die aktive Eingabezeit (F2) — bewusst nicht in F1/F2 eingerechnet, da dort nur aktive Eingabezeit zählt.</div>
         </div>
 
       </div>
